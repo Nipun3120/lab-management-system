@@ -94,7 +94,7 @@
 {% include 'navbar.html' with staff=staff %}
 {% load crispy_forms_tags %} 
 <div class = "wrapper_">
-    <h3 class = "heading-3"> lab id : {{ labid.Lab_id }}</h3>
+    <h3 class = "heading-3"> LAB: {{ labid.lab }}</h3>
     <div class = "form-add-computer">
         <form method="POST">
             {% csrf_token %}

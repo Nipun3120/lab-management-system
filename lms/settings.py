@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u-)irq$vl+b5$9)7g!fqu_yp66ew_oxirfy-()=fbtb307kix1'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,7 +35,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +43,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     # 'notifications',
+    "verify_email.apps.VerifyEmailConfig",
+    'main',
+    'django_email_verification',
 ]
 
 MIDDLEWARE = [
@@ -136,5 +141,32 @@ LOGIN_REDIRECT_URL = '/login'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# AUTHENTICATION_BACKENDS = ['main.models.ExtendedUserModelBackend']
-# AUTH_USER_MODEL =   'main.Auth'
+# custom auth model
+AUTH_USER_MODEL = "main.User"
+
+
+
+def verified_callback(user):
+    user.is_active = True
+
+EMAIL_VERIFIED_CALLBACK = verified_callback
+EMAIL_FROM_ADDRESS = env('EMAIL_ID')
+EMAIL_MAIL_SUBJECT = 'Confirm your email'
+EMAIL_MAIL_PLAIN = '/templates/accounts/email_template.txt'
+EMAIL_MAIL_HTML = 'templates/accounts/verification_mail_body.html'
+EMAIL_TOKEN_LIFE = 60 * 60                          # 1 hr
+EMAIL_PAGE_TEMPLATE = '/templates/accounts/email_confirmation.html'
+EMAIL_PAGE_DOMAIN = 'http://localhost:8000/'
+# EMAIL_PAGE_DOMAIN = 'http://mydomain.com/'
+EMAIL_MULTI_USER = True  
+
+# email settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = env('EMAIL_ID')
+EMAIL_HOST_PASSWORD = env('PASSWORD')
+
+DEFAULT_FROM_EMAIL = 'noreply<no_reply@localhost.com>'

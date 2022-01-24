@@ -1,25 +1,58 @@
 from typing import BinaryIO
+from xml.dom import ValidationErr
 from django import forms
 from django.db import models
 from django.db.models import fields
 from django.forms.fields import ChoiceField
-from .models import Designation, Staff, Notification, TotalLeaves,UserLeaveStatus
+from .models import Class, Designation, Devices, FacultyCourse, FacultyGroups, Staff, Notification, TotalLeaves,UserLeaveStatus
 from django.contrib.auth.forms import  AuthenticationForm, UserCreationForm, UserChangeForm
-from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 import datetime
 from django.forms import ModelForm
 
+User = get_user_model()
+
 # class ComplaintResolveFrom(forms.Form):
 #     WorkDone=forms.Textarea(widget=forms.Textarea(attrs={'placeholder': 'Enter Workdone'}))
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm):
+        model = User
+        fields = ['email',]
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ['email']
 
 
 class ComplaintForm(forms.Form):
     complaint=forms.CharField(widget=forms.Textarea(attrs={'placeholder': 'Enter complaint'}))
 
-class NewComputerForm(forms.Form):
-    computer_id=forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Computer ID'}))
-    floor_id=forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Floor ID'}))
+class NewComputerForm(forms.ModelForm):
+    # device_id = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter Device ID'}))
+    # device_name = forms.ChoiceField(widget=forms.TextInput(attrs={'placeholder': 'Enter Device Name'}))
+    # description = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Enter description of the device'}))
+    class Meta:
+        model = Devices
+        fields = ['device_id','name','description']
+
+class AddCourseForm(forms.ModelForm):
+
+    class Meta:
+        model = FacultyCourse
+        fields = ['faculty','course']
+
+class AddGroupForm(forms.ModelForm):
+
+    class Meta:
+        model = FacultyGroups
+        fields = ['faculty','groups']
+
 
 
 class LoginForm(forms.Form):
@@ -76,13 +109,11 @@ class EditProfileForm(forms.Form):
     name = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
     mobile_number = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
 
-            
-
 
 class SignupForm(UserCreationForm):
     name=forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Full Name'}))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'placeholder':'Email'}))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}), validators=[validate_password])
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder':'Password'}))
     mobile_number=forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder':'Mobile Number'}))
 
@@ -91,20 +122,32 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ("email", "password1", "password2", "name", "mobile_number")
         
-    def save(self, commit=True):
-        # save user in user model fields email password
-        email = self.cleaned_data['email']
-        password = self.cleaned_data['password1']
-        name= self.cleaned_data['name']
+    # def cleaned_emal(self):
+    #     email = self.cleaned_data['email']
+    #     try:
+    #         account = User.objects.get(email=email)
+    #     except Exception as e:
+    #         return email
+    #     raise forms.ValidationError(f"{email} already in use")
 
-        user = super(UserCreationForm, self).save(commit=False)
+
+    # def cleaned_password(self):
+    #     return self.cleaned_data['password1']
         
-        user.set_password(password)
-        user.email = email
-        user.username = name
-        if commit:
-          user.save()
-        return user
+    # def save(self, commit=True):
+    #     # save user in user model fields email password
+    #     email = self.cleaned_data['email']
+    #     password = self.cleaned_data['password1']
+    #     name= self.cleaned_data['name']
+
+    #     user = super(UserCreationForm, self).save(commit=False)
+        
+    #     user.set_password(password)
+    #     user.email = email
+    #     user.username = name
+    #     if commit:
+    #       user.save()
+    #     return user
 
 
 class AddNewLeave(forms.ModelForm):
@@ -155,3 +198,37 @@ class AddNewLeave(forms.ModelForm):
 #          class Meta:
 #             model = Staff
 #             fields = ('name','mobile_number','email', 'category', 'designation', 'agency') #Note that we didn't mention user field here.
+
+
+class AddClassForm(forms.ModelForm):
+    class Meta:
+        model = Class
+        fields = ['faculty',"course","group","day","starttime"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = FacultyCourse.objects.none()
+        self.fields['group'].queryset = FacultyGroups.objects.none()
+
+
+        if 'faculty' in self.data:
+            try:
+                faculty_id = int(self.data.get('faculty'))
+                self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=faculty_id)
+                self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=faculty_id)
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty City queryset
+        elif self.instance.pk:
+            self.fields['course'].queryset = FacultyCourse.objects.filter(faculty_id=self.instance.faculty)
+            self.fields['group'].queryset = FacultyGroups.objects.filter(faculty_id=self.instance.faculty)
+
+class AddFacultyClassForm(forms.ModelForm):
+    class Meta:
+        model=Class
+        fields = ['lab',"course","group","day","starttime"]
+    def __init__(self, faculty,*args, **kwargs):
+        # print(faculty)
+        super().__init__(*args, **kwargs)
+        self.fields['course'].queryset = FacultyCourse.objects.filter(faculty=faculty)
+        self.fields['group'].queryset = FacultyGroups.objects.filter(faculty=faculty)
+

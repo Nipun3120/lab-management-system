@@ -16,11 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
+from django_email_verification import urls as email_urls
 
 import notifications.urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
+    path('verification/', include('verify_email.urls')),       #might be removed 
+    path('email-verification/', include(email_urls)),	
+
     # path('^inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]

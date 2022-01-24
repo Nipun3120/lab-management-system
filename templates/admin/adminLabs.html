@@ -10,17 +10,21 @@
     <table class="table">
         <thead>
           <tr>
-            <th scope="col">Lab</th>
-            <th scope="col" style="width: 50%;">Staff</th>
+            <th scope="col" >Lab</th>
+            <th scope="col" >Lab name</th>
+            <th scope="col" >Lab Attendent</th>
+            <th scope="col" >View Lab</th>
           </tr>
         </thead>
 
         <tbody>
-            {% for lab in labs %}
+          {% for lab in labs %}
           <tr>
             <td>{{lab.lab}}</td>
             <td>{{lab.name}}</td>
             <td>{{lab.staff.name}}</td>
+            <td style="text-align: center;"><a  href="{% url 'main:lab' pk=lab.id%}"style="color: rgb(48, 1, 1); text-decoration: underline;">View Lab</a></td>
+            
           </tr>
           {% endfor %}
         </tbody>

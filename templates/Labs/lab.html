@@ -4,7 +4,7 @@
 
 {% include 'navbar.html' with staff=staff %}
 <div class="wrapper_">
-<a>{{labname.Lab_id}}</a>
+<h1>{{lab.name}} ({{lab.lab}})</h1>
 <div class = "lab-h1">
     <h1>Devices</h1>
 </div>
@@ -14,23 +14,34 @@
         <thead class="thead-dark">
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Devices</th>
-            <th scope="col">Button</th>
+            <th scope="col">Device ID</th>
+            <th scope="col">Device Category</th>
+            <th scope="col">Devices Descirption</th
+            {%if staff.designation.designation == "Lab Attendent"%}
+            <th scope="col">Add Complaint</th>
+            {%endif%}
           </tr>
         </thead>
         
         <tbody>
         {% for device in devices %}
           <tr>
-            <th scope="row">{{forloop.counter}}</th>
-            <td>{{ device }}</td>
-            <th><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></th>
+            <td scope="row">{{forloop.counter}}</td>
+            <td>{{ device.device_id }}</td>
+            <td>{{ device.name.category }}</td>
+            <td>{{ device.description }}</td>
+            {% if staff.designation.designation ==  "Lab Attendent" %}
+            <td><a href="{% url 'main:complaint' pk=device.id %}"><button class="lab-submitButton" type="submit">Add Complaint </button></a></td>
+            {%endif%}
           </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
-
-<h5 class = "lab-add-h5"> If you want to add Devices <a href="{% url 'main:add_device' pk=labid %}" class = "lab-a2">click here</a> </h5>
+<h5 class = "viewtimetable"> View Time Table <a href="{% url 'main:viewtimetable_wrtlab' id=labid %}" class = "lab-a2">click here</a> </h5>
+{% if staff.designation.designation ==  "Lab Supervisor" or staff.designation.designation ==  "System Analyst"%}
+<h5 class = "viewtimetable"> View Time Table <a href="{% url 'main:viewLabClasses' id=labid %}" class = "lab-a2">View Lab Classes</a> </h5>
+{%endif%}
+<h5 class = "lab-add-h5"> If you want to add Devices <a href="{% url 'main:add_devices' pk=labid %}" class = "lab-a2">click here</a> </h5>
 </div>
 {% endblock body %}

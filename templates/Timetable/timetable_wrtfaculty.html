@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    <meta charset="UTF-8">
+    {% load static %}
+  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,400i,600,700,700i&amp;subset=latin-ext" rel="stylesheet">
+	<link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/tables.css' %}" rel="stylesheet">
+    <link href="{% static 'css/add.css' %}" rel="stylesheet">
+   
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" src="extensions/sticky-header/bootstrap-table-sticky-header.css">
+    <script src="extensions/sticky-header/bootstrap-table-sticky-header.js"></script>
+    <style>
+        
+        html,body {
+        margin: 0;
+        font-family: "Karla";
+        color: #149bda;
+        /* background-color: rgb(34, 226, 240); */
+        }
+
+        * {
+        box-sizing: border-box;
+        }
+
+        .timetable {
+        display: grid;
+        grid-template-areas: ". week" "time content";
+        grid-template-columns: 60px;
+        grid-template-rows: 40px;
+        width: 100vw;
+        height: 100vh;
+        }
+        .timetable .accent-pink-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #ee8ebc, #eea08e);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+
+        .timetable .accent-orange-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #eec08e, #dcee8e);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+
+        .timetable .accent-green-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #bcee8e, #8eeea0);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+
+        .timetable .accent-cyan-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #8eeec0, #8edcee);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+
+        .timetable .accent-blue-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #8ebcee, #a08eee);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+
+        .timetable .accent-purple-gradient {
+        display: -webkit-box;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #c08eee, #ee8edc);
+        -webkit-transition: 0.2s ease box-shadow, 0.2s ease transform;
+        transition: 0.2s ease box-shadow, 0.2s ease transform;
+        }
+        .timetable .weekend {
+        background: #fbfbfc;
+        color: #87a1ad;
+        }
+        .timetable .week-names {
+          grid-area: week;
+          display: grid;
+          grid-template-columns: repeat(6, 250px);
+          text-transform: uppercase;
+          font-size: 12px;
+          }
+          .timetable .week-names > div {
+          display: -webkit-box;
+          display: flex;
+          -webkit-box-align: center;
+                  align-items: center;
+          -webkit-box-pack: center;
+                  justify-content: center;
+          width: 100%;
+          height: 100%;
+          box-shadow: inset 1px 0 0 #eceff1;
+          /* margin : 0 5px; */
+          border: 1px solid black;
+          
+        }
+        .timetable .time-interval {
+        grid-area: time;
+        display: grid;
+        text-align: left;
+        grid-template-rows: repeat(14, 100px);
+        font-size: 14px;
+        }
+        .timetable .time-interval > div {
+        display: -webkit-box;
+        display: flex;
+        -webkit-box-align: center;
+                align-items: center;
+        -webkit-box-pack: center;
+                justify-content: center;
+        width: 100%;
+        height: 100%;
+        box-shadow: inset 0 1px 0 0 #eceff1;
+        }
+        .container{
+            /* text-align: left; */
+            position: absolute;
+        }
+        .timetable .content {
+        position : relative;
+        font-weight: bold;
+        grid-area: content;
+        display: grid;
+        grid-template-rows: repeat(14, 100px);
+        grid-template-columns: repeat(6, 250px);
+        /* grid-template-areas: none; */
+        z-index : -1;
+        background-color: #eee5e9;
+        background-image: linear-gradient(to top left,#eccada,#f15156b4);
+        }
+
+        
+        .timetable .content > div {
+          width: 100%;
+        box-shadow: inset 1px 0 0 #eceff1bb, inset 0 1px 0 0 #eceff1bb;
+        /* border-radius: 1px solid #eceff1; */
+        /* z-index : -1; */
+        }
+
+        .timetable .found{
+          position: relative;
+          display : grid;
+            grid-template-rows: repeat(2, 1fr);
+            grid-template-columns: repeat(1, 1fr);
+            background-color: #8edcee;
+            height: 200%;
+            z-index : 10;
+            border : 1px solid black;
+            /* margin : 1px 5px; */
+        }
+
+        #editor{
+          display : flex;
+          margin : 0 auto;
+
+        }
+        .container .temp1{
+          font-family : serif;
+          text-align: center;
+        }
+        .container .temp2{
+          font-family : serif;
+          text-align: center;
+        }
+
+    </style>
+
+{% endblock head %}
+
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+<div class="container">
+    <h1 class = "temp1"> Time Table for {{staff.designation.designation}} {{staff.name}}</h1>
+<div class="timetable" id="pdftimetable">
+    <div class="week-names">
+      {% for day in weekdays %}
+        <div>{{day}}</div>
+      {% endfor %}
+      
+      <!--
+      <div>monday</div>
+      <div>tuesday</div>
+      <div>wednesday</div>
+      <div>thursday</div>
+      <div>friday</div>
+      <div class="weekend">saturday</div>
+      <div class="weekend">sunday</div>
+      -->
+    </div>
+    <div class="time-interval">
+      {% for x in time %}
+				
+        <div>{{x}}</div>
+
+				
+                
+      {% endfor %}
+      <!--      <div>10:00 - 12:00</div>
+      <div>12:00 - 14:00</div>
+      <div>14:00 - 16:00</div>
+      <div>16:00 - 18:00</div>
+      <div>18:00 - 20:00</div>
+      -->
+    </div>
+    
+    <div class="content">
+      {% for x in time %}
+      {% for day in weekdays %}
+      <div>
+
+      
+        {% for class in classes%}
+        
+        {% if class.day == day %}
+        {% if  x == class.starttime %}
+                    <div class="found">
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.lab.lab}}</p>
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.course.course.course_name}}</p>
+                    <p style="text-align:center; margin:0 !important; padding:0 !important">{{class.group.groups.group_id}}</p>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+             <br>
+            <!-- {% for class in activities %}
+              {% for professor in professors %}
+                {% if activity.professor_id == professor.professor_id %}
+                  {% if activity.day == day %}
+                    {% if  x == activity.starttime %}
+                      {{professor.professor_name}}
+                    {% endif %}
+                  {% endif %}
+                {% endif %}      
+              {% endfor %}
+            {% endfor %} 
+            <br>
+            {% for activity in activities %}
+                  {% if activity.day == day %}
+                    {% if  x == activity.start_time %}
+                      {{activity.classroom_id}}
+                    {% endif %}
+                  {% endif %}
+            {% endfor %}     -->
+               
+                
+            
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    
+  </div>
+  {% comment %}
+  <div id="editor">
+    <button id="cmd" class="button">generate PDF</button>
+  </div>
+  {%endcomment%}
+</div>
+
+<script type = "text/javascript">
+    var colors = ['#805D93', '#f49fbc', '#ffd3ba', '#9ebd6e' , '#169873', '#aa7dce' , '#f5d7e3', '#ebefbf',
+  '#adaabf', '#bdadea' , '#f79f79' , '#7b6d8d' , '#e8f7ee' , '#a5d8ff' , '#63d471' , '#b0c6ce' , '#e01a4f'];
+    var random_color = colors[Math.floor(Math.random() * colors.length)];
+    var x = document.getElementsByClassName("found");
+    console.log(x);
+    for (i = 0; i < x.length; i++) {
+    random_color = colors[Math.floor(Math.random() * colors.length)];
+    x[i].style.backgroundColor = random_color;
+    }
+</script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<!-- <script>
+  var randomColor = Math.floor(Math.random()*16777215).toString(16);
+</script> -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script type="text/javascript">
+    $(".timetable").on("click", "#cmd", function () {
+        html2canvas($('#pdftimetable')[0], {
+            onrendered: function (canvas) {
+                var data = canvas.toDataURL();
+                var docDefinition = {
+                    content: [{
+                        image: data,
+                        width: 500
+                    }]
+                };
+                pdfMake.createPdf(docDefinition).download("TimeTable.pdf");
+            }
+        });
+    });
+</script>
+
+
+{% endblock body %}

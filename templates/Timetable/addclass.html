@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+<form method="post" id="coursesform" data-courses-url="{% url 'main:ajax_load_courses' %}" data-groups-url="{% url 'main:ajax_load_groups' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    $("#id_faculty").change(function () {
+        const url1 = $("#coursesform").attr("data-courses-url");
+        const url2 = $("#coursesform").attr("data-groups-url");  // get the url of the `load_cities` view
+        const facultyId = $(this).val();  // get the selected country ID from the HTML input
+            
+        $.ajax({                       // initialize an AJAX request
+            url: url1,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'faculty_id': facultyId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#id_course").html(data);  // replace the contents of the city input with the data that came from the server
+                
+                /*
+                let html_data = '<option value="">---------</option>';
+                data.forEach(function (course) {
+                    html_data += `<option value="${course.id}">${course.course_id}</option>`
+                });
+                console.log(html_data);
+                $("#id_course").html(html_data);
+                */
+            }
+        });
+        $.ajax({                       // initialize an AJAX request
+            url: url2,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'faculty_id': facultyId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#id_group").html(data);  // replace the contents of the city input with the data that came from the server
+                
+                /*
+                let html_data = '<option value="">---------</option>';
+                data.forEach(function (course) {
+                    html_data += `<option value="${course.id}">${course.course_id}</option>`
+                });
+                console.log(html_data);
+                $("#id_course").html(html_data);
+                */
+            }
+        });
+       
+
+    });
+</script>
+
+{% endblock body %}

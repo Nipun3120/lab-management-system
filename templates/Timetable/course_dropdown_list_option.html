@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for course in courses %}
+<option value="{{ course.id }}">{{ course.course.course_name }}</option>
+{% endfor %}

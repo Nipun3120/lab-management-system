@@ -1,38 +1,54 @@
-from datetime import datetime, time
-from typing import cast
+from tokenize import Name
+from django import db
 from django.db import models, reset_queries
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import PermissionsMixin
+from datetime import datetime, time
+from email.policy import default
+from enum import auto
+from pyexpat import model
+from typing import cast
 from django.conf import settings
 from django.db.models.aggregates import Count
 from django.db.models.base import Model
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.db.models.expressions import Case
 from django.db.models.fields import NullBooleanField
-from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy
 import string
-from polymorphic.models import PolymorphicModel
-
 from django.utils import timezone
+from .managers import CustomUserManager
 
+# from django.contrib.auth import get_user_model
+# User = get_user_model()
 
+#custom user model
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(('email address'), unique=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+    def __str__(self):
+        return self.email
 
 class Agency(models.Model):
     agency = models.CharField(max_length = 200)
-
     def __str__(self):
         return self.agency
     
 class Designation(models.Model):
     category=models.ForeignKey("Category",on_delete = CASCADE)
     designation =models.CharField(max_length=400)
-
     def __str__(self):
         return self.designation
 
-class Category(models.Model):               # faculty, lab staff, office staff, student
+class Category(models.Model):             
     category =models.CharField(max_length=400)
-
     def __str__(self):
         return self.category
     
@@ -48,13 +64,9 @@ class Staff(models.Model):
     def __str__(self):
         return self.name + " " + self.designation.designation
 
-    # function to count leaves pending
 
-
-# done 
 
 class TotalLeaves(models.Model):
-    # admin access + isme ki saari leaves total
     LeaveName = models.CharField(max_length=100, blank=True)
     count = models.IntegerField(default=0)
     year = models.IntegerField(default=2021)
@@ -204,3 +216,81 @@ class Notification(models.Model):
 # -> leave regarding -> ek band vo dusre ko tag krega reciever fields -> user list 
 # -> complaint -> group notify -> reciever -> designation list
 # -> baad mein krte 
+
+
+# -> Time Table models
+
+class Course(models.Model):
+    course_id=models.CharField(max_length=100,blank=False,default=None)
+    course_name=models.CharField(max_length=200,blank=False,default=None)
+    course_credit=models.CharField(max_length=5)
+
+    def __str__(self):
+        return self.course_name + ' ('+self.course_id+')'
+
+class FacultyCourse(models.Model):
+    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
+    course=models.ForeignKey('Course' ,on_delete=CASCADE)
+
+    def __str__(self):
+        st = self.faculty.name + ' (' + self.course.course_id + ')'
+        return st
+
+class Branches(models.Model):
+    branch_id=models.CharField(max_length=10,blank=False,default='COE')
+    branch_name=models.CharField(max_length=200,default='Computer Engineering',blank = False, null = False)
+
+    def __str__(self):
+        return self.branch_name + ' (' + self.branch_id + ')'
+
+    
+class Groups(models.Model):
+    group_id = models.CharField(max_length = 300, blank = False , null = False, default = "NILL")
+    branch = models.ForeignKey('Branches' , on_delete = CASCADE)
+
+    def __str__(self):
+        return self.group_id + ' (' + self.branch.branch_id + ')'
+
+class FacultyGroups(models.Model):
+    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
+    groups=models.ForeignKey('Groups' ,on_delete=CASCADE)
+
+    def __str__(self):
+        return self.faculty.name + ' (' + self.groups.group_id + ')'
+
+
+class Class(models.Model):
+    WEEK_DAY = (
+    ('Monday', 'Monday'),
+    ('Tuesday', 'Tuesday'),
+    ('Wednesday', 'Wednesday'),
+    ('Thursday', 'Thursday'),
+    ('Friday', 'Friday'),
+    ('Saturday', 'Saturday'),
+    ('Sunday', 'Sunday')
+    )
+    lab=models.ForeignKey('Lab',on_delete=CASCADE)
+    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
+    course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
+    group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
+    day=models.CharField(max_length=2000, choices=WEEK_DAY,default='Monday')
+    starttime=models.TimeField(auto_now=False)
+    endtime = models.TimeField(auto_now=False)
+
+    def __str__(self):
+        return self.lab.lab + ' ' + self.faculty.name + ' '+ self.course.course.course_name + ' ' + self.day + self.group.groups.group_id
+
+
+class GroupCourse(models.Model):
+    faculty=models.ForeignKey('Staff',on_delete=CASCADE)
+    course=models.ForeignKey('FacultyCourse',on_delete=CASCADE)
+    group=models.ForeignKey('FacultyGroups',on_delete=CASCADE)
+
+    def __str__(self):
+        return self.faculty.name + ' (' + self.group.groups.group_id + ')' + ' (' + self.course.course.course_id + ')'
+
+#admin page
+#activity page:->
+#list of staff jo faculty mai hai
+#Sarthak - Professor - Add Activity->click->view
+

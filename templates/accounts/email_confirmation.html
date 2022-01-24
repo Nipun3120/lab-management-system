@@ -1,0 +1,16 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    {% if success %}
+        <h2>Your account is confirmed!</h2>
+        <a href="{% url 'main:login' %}">Click to login</a>
+    {% else %}
+        <h2>Error, invalid token!</h2>
+        <a href="{% url 'main:register' %}">Resigter again!</a>
+    {% endif %}
+</body>
+</html>

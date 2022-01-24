@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+    <h2 class="heading">{{message}} at {{ u.email }}</h2> 
+    <p> Login here : </p>
+                    <a class="nav-link" href="{% url 'main:login' %}">Log In</a>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300);
+
+
+  .wrapper_{
+    margin: 10px auto;
+    justify-content: center; 
+    align-items: center;
+    position: relative;
+    background-image: -moz-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: -o-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    background-image: linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);
+    /* width: 50%; */
+    height: 50vh;
+    padding: 25px;
+    z-index: 2;
+    border-radius: 5px;
+    box-shadow: 3px 7px 7px #51dfa4c0;
+  }
+
+  .heading-3{
+    margin-top: 0px;
+    color : white;
+    text-align: center;
+    font-size : 50px;
+    font-family: "Source Sans Pro", sans-serif;
+    text-transform: uppercase;
+  }
+
+  .form-add-computer{
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%);
+    margin-bottom: 20px;
+  }
+  .textinput, .textInput{
+
+    display: block;
+    width: 100%;
+    border-radius: 5px;
+    padding: 20px 90px;
+    font-size : 18px;
+    outline: none;
+    margin-bottom: 10px;
+    border: 5px solid black;
+    text-align: center;
+    background-color: fade(white, 20%);
+    transition-duration: 0.25s;
+    opacity: 0.5;
+    font-family: 'Source Sans Pro', sans-serif;
+    border-radius: 15px 35px;
+}
+.control-label{
+        display: none;
+    }
+.submit-button{
+        position: absolute;
+        background-color: #000;
+        color: rgb(84, 227, 167);
+        font-size: 30 px;
+        padding-left: 44%;
+        padding-right: 44%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-radius: 5px;
+        border : 0;
+        cursor: pointer;
+        text-align: center;
+        margin-left: 50%;
+        transform: translate(-50%);
+        /* padding: 20px 90px; */
+        
+        /* font-style: italic; */
+        /* font-weight : bold; */
+        font-family: 'Source Sans Pro', sans-serif;
+  }
+
+  .submit-button:hover{
+    color: white;
+    background: rgba(14, 37, 25, 0.925);
+  }
+  
+</style>
+
+{% endblock head %}
+
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+{% load crispy_forms_tags %} 
+<div class = "wrapper_">
+    <h3 class = "heading-3"> Faculty: {{ faculty.name }}</h3>
+    <div class = "form-add-computer">
+        <form method="POST">
+            {% csrf_token %}
+            {{form|crispy}}
+        <button class= "submit-button" type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

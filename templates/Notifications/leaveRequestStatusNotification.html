@@ -34,7 +34,7 @@
                 <tr>
                     <td>{{ leave.staff.name }}</td>
                     <td>{{ leave.substitute.name }} </td>
-                    <td>{{ leave.date_time|date }}</td>
+                    <td>{{ leave.from_date|date }}</td>
                     <td>{{ leave.status }}</td>
 
                     {% if not leave.substitute_approval and not leave.rejected%}

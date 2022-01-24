@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+<div class="container">
+    <div class="courses-table">
+        <table class="table">
+            <thead>
+              <tr>
+                <th scope="col" >Faculty</th>
+                <th scope="col" >Course Id</th>
+                <th scope="col" >Course Name</th>
+                <th scope="col" >Course Credits</th>
+                <th scope="col" >Delete</th>
+              </tr>
+            </thead>
+    
+            <tbody>
+              {% for course in courses %}
+              <tr>
+                <td>{{course.faculty.name}}</td>
+                <td>{{course.course.course_id}}</td>
+                <td>{{course.course.course_name}}</td>
+                <td>{{course.course.course_credit}}</td>
+                <td><a href="{%url 'main:admindeletecourses' id=course.id%}" style="color: black; text-decoration: underline;"><i class="fa fa-trash" aria-hidden="true"></i></a></td>              
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p>If you want to add a course <a href = "{% url 'main:adminaddcourses' id=faculty.id %}">click here</a></p>
+    </div>
+{% endblock body %}

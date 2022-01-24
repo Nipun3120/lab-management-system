@@ -12,9 +12,8 @@
         <li class="nav-item">
           <a class="nav-link nav_text" href="{% url 'main:home' %}">Dashboard</a>
         </li>
-        
-        {% if user.is_authenticated %}
 
+        {% if user.is_authenticated %}
           {% comment %}<li class="nav-item">
             <a class="nav-link nav_text" href="{% url 'main:editProfile' %}">Edit Profile</a>
           </li> {% endcomment %}
@@ -28,9 +27,11 @@
           <li class="nav-link nav_text">
             <a href="{% url 'main:userLeaves' %}">Leaves</a> 
           </li>
+          {% if staff.designation.designation == 'Lab Technician'%}
           <li class="nav-link nav_text">
               <a href = "{% url 'main:viewcomplaints' %}">Complaints</a>
           </li>
+          {%endif%}
           <!-- <li class = "nav-link"><a href = "/">View profile</a></li> -->
           <li class="nav-link nav_text"><a href="{% url 'main:logout' %}">Logout</a></li>
         {% else %}

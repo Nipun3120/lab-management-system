@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+<div class="labs-table">
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" >Faculty</th>
+            <th scope="col" >Groups</th>
+            <th scope="col" >Courses</th>
+            <th scope="col" >Classes</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for x in faculty %}
+          <tr>
+            <td>{{x.name}}</td>
+            <!-- % url 'main:add_classes' id=labid % -->
+            <td><a href = "{% url 'main:adminviewgroups' id=x.id %}" style = "color : black"> View Groups </a></td>
+            <td><a href = "{% url 'main:adminviewcourses' id=x.id %}" style = "color : black"> View Courses </a></td>
+            <td><a href = "{% url 'main:adminviewclasses' id=x.id %}" style = "color : black"> View Classes </a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+
+{% endblock body %}

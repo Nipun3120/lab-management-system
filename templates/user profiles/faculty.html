@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+{% include 'navbar.html' with staff=staff %}
+
+<div class="container">
+    <div class="row" >
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">Assigned Courses</h5>
+                    <a href="{% url 'main:viewcourses' %}" class="btn btn-primary">View Courses</a>
+                </div>
+            </div>
+
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">Groups Alloted</h5>
+                    <a href="{% url 'main:viewgroups' %}" class="btn btn-primary">View Groups</a>
+                </div>
+            </div>
+            <div class="card col-lg-3 col-sm-12 col-md-6">
+                <div class="card-body">
+                    <h5 class="card-title">Scheduled Classes</h5>
+                    <a href="{% url 'main:viewfacultyclasses' %}" class="btn btn-primary">View Classes</a>
+                </div>
+            </div>
+
+            <div class="card col-lg-3 col-sm-12 col-md-6 ">
+                <div class="card-body">
+                    <h5 class="card-title">Classes Timetable</h5>
+                    <a href="{% url 'main:viewfacultytimetable' %}" class="btn btn-primary">View Timetable</a>
+                </div>
+            </div>
+
+    </div>
+</div>
+
+{%endblock body%}
