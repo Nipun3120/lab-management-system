@@ -4,12 +4,15 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
-<div class="container mt-5">
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;"> Device Complaint</h2>
+<div class="container">
 
 <h1> Device id : {{device.device_id}}</h1>
 <h1>Device Category :{{device.name}}</h1>
 
-<table class="table">
+<table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Complaint Sender</th>
@@ -21,7 +24,7 @@
         <tbody>
 
         {% for active_complaint in active_complaints %}
-        <tr>
+        <tr class="table-success" style = "text-align: center;">
             <td>{{ active_complaint.created_by }}</td>
             <td>{{ active_complaint.created_at }}</td>
             <td>{{ active_complaint.complaint }} </td>
@@ -33,7 +36,7 @@
   <br>
   <h1> Resolved Complaints </h1>
 
-  <table class="table">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
     <thead>
       <tr>
         <th scope="col">Complaint Sender</th>
@@ -46,7 +49,7 @@
         <tbody>
 
         {% for complaint in resolved_complaints %}
-        <tr>
+        <tr class="table-success" style = "text-align: center;">
             <td>{{ complaint.created_by }}</td>
             <td>{{ complaint.created_at }}</td>
             <td>{{ complaint.complaint }} </td>
@@ -58,6 +61,6 @@
   </table>
 
   </div>
-
+</section>
 
 {% endblock body %}

@@ -5,7 +5,9 @@
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Add assigned Devices</h2>
 <div class="container">
     <form method="post">
         {% csrf_token %}
@@ -13,6 +15,7 @@
         <button type="submit" class="btn btn-dark btn-sm">Add device</button>
       </form>
 </div>
+</section>
 
 
 

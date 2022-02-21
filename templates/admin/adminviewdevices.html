@@ -4,17 +4,24 @@
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count%}
 
+
+<section class="sectionLogin">
+    <br>
+    <h2 style = "text-align: center;">Devices</h2>
 <div class="container mt-5">
-    <div class="card col-lg-4 col-sm-12 col-md-6">
+    <div class = "card-group" style = "margin: 20px;text-align: center;">
+    <div class="card col-lg-4 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
       <div class="card-body">
           <a href="{% url 'main:adminview_warehouse_devices' %}" class="btn btn-dark btn-sm">View Devices in Ware House </a>
       </div>
   </div>
-  <div class="card col-lg-4 col-sm-12 col-md-6">
+  <div class="card col-lg-4 col-sm-12 col-md-6" style = "background-color: rgba(245, 245, 245, 0.2);margin:20px;border:1px solid black">
       <div class="card-body">
-          <a href="{% url 'main:adminview_assigned_devices' %}" class="btn btn-primary">View Assigned Devices</a>
+          <a href="{% url 'main:adminview_assigned_devices' %}" class="btn btn-dark btn-sm">View Assigned Devices</a>
       </div>
   </div>
   </div>
+  </div>
+  </section>
 
 {% endblock body %}

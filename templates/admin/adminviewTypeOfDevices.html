@@ -4,9 +4,12 @@
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;"> Type of Devices</h2>
 <div class="container">
     <div class="groups-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Type of Device</th>
@@ -15,7 +18,7 @@
             </thead>
             <tbody>
               {% for type in tod %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{type.category}}</td>
                 
                 <td><a href="{%url 'main:admineditTypeOfDevice' id=type.id %}" style="color: black; text-decoration: underline;"><i class="fas fa-user-edit"></i></a></td>              
@@ -28,4 +31,5 @@
         </div>
         <p>If you want to add a Type of Device, <a href = "{% url 'main:adminaddTypeOfDevice' %}">click here</a></p>
     </div>
+    </section>
 {% endblock body %}

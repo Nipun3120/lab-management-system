@@ -23,7 +23,7 @@
         {% for leave in leaves %}
 
         {% if not leave.admin_approval %}
-            <tr>
+            <tr class="table-success" style = "text-align: center;">
                 <td>{{ leave.staff.name }}</td>
                 <td>{{ leave.substitute.name }} (you) </td>
                 <td>{{ leave.to_date }}</td>

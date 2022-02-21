@@ -3,9 +3,11 @@
 
 {% block body %}
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
-
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;">Complaint</h2>
 <div class="container mt-5">
-  <table class="table">
+  <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
       <thead>
         <tr>
           <th scope="col">Room ID</th>
@@ -18,7 +20,7 @@
       </thead>
           <tbody>
   
-          <tr>
+          <tr class="table-success" style = "text-align: center;">
               <td>{{ complaint.device.room.room_id }}</td>
               <td>{{ complaint.device.room.name }}</td>
               <td>{{ complaint.device.device_id }} </td>
@@ -38,5 +40,10 @@
                   <td style="text-align: center;"><a href="{% url 'main:resolveConflict' pk=complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Resolve</a></td> 
               {% endcomment %}
           </tr>
+          </tbody>
+          </table>
+          </div>
+          </section>
+          
 
 {% endblock body %}

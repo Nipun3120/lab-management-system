@@ -18,8 +18,14 @@ input[type="number"] {
 html,
 body {
   font-family: "Bitter", serif;
-  height: 100%;
   width: 100%;
+  height: 100%;
+  background-color: var(--green-main-4);
+  background-image: linear-gradient(
+    to bottom right,
+    var(--green-main-4) 50%,
+    var(--green-main-1) 50%
+  );
 }
 a {
   text-decoration: none;
@@ -46,14 +52,6 @@ a {
 /* -------------------------------- LOGIN --------------------------------*/
 
 .sectionLogin {
-  width: 100%;
-  height: 100%;
-  background-color: var(--green-main-4);
-  background-image: linear-gradient(
-    to bottom right,
-    var(--green-main-4) 50%,
-    var(--green-main-1) 50%
-  );
 }
 .mainWrapperLogin {
   border-radius: 20px;

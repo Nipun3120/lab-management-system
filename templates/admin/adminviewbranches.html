@@ -4,9 +4,12 @@
 
 {% include 'navbar.html' with staff=staff notification_count=notification_count %}
 
+<section class="sectionLogin">
+  <br>
+  <h2 style = "text-align: center;"> View Branches</h2>
 <div class="container">
     <div class="groups-table">
-        <table class="table">
+        <table class="table1 table table-borderless table-dark table-hover" style = "text-align: center;">
             <thead>
               <tr>
                 <th scope="col" >Branch ID</th>
@@ -16,7 +19,7 @@
             </thead>
             <tbody>
               {% for branch in branches %}
-              <tr>
+              <tr class="table-success" style = "text-align: center;">
                 <td>{{branch.branch_id}}</td>
                 <td>{{branch.branch_name}}</td>
                 
@@ -30,4 +33,5 @@
         </div>
         <p>If you want to add a branch, <a href = "{% url 'main:adminaddbranch' %}">click here</a></p>
     </div>
+    </section>
 {% endblock body %}

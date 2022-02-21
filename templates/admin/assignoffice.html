@@ -15,12 +15,14 @@
 <div class="col">
     <div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
         <form method="get">
-            {{myFilter.form}}
+          {% load crispy_forms_tags %}
+            {{myFilter.form|crispy}}
+            <br>
             <button class="btn btn-dark btn-sm" type="submit">Filter Rooms</button>
         </form>
     </div>
 </div>
-<div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4);">
+<div class=" card card-body" style="background-color: rgba(245, 245, 245,0.4); margin-top: 30px;">
 <div class = "form-control" style="background-color: rgba(245, 245, 245,0.4);">
     <form method="POST">
             {% csrf_token %}
