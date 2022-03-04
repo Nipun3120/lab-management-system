@@ -1,6 +1,7 @@
 from email import message
 from pydoc import describe
 from enum import unique
+import re
 import threading
 import datetime
 from unicodedata import decimal
@@ -245,8 +246,13 @@ def passwordResetView(request):
 	if request.method == "POST":
 		try:
 			email = request.POST['email']
+			# try:
 			user = User.objects.get(email=email)
-
+			# except Exception as e:
+			# 	print(e)
+			# 	messages.error(request, "Not a valid Email Id, Please register first")
+			# 	return redirect('main:register')
+			print("user", user)
 			if not user.is_email_verified:
 				messages.error(request, "Your email is not verified, please verify your email first using the link provided in mail")
 				return render(request, 'accounts/password_reset.html', {'messages': messages.get_messages(request)})
@@ -257,8 +263,8 @@ def passwordResetView(request):
 				messages.success(request, "Check your email and click the link to reset your password")
 				return redirect('main:login')
 
-		except AttributeError or User.DoesNotExist or Exception as err:
-			print(err)
+		except Exception as e:
+			print(e)
 			messages.error(request, "Not a valid Email Id, Please register first")
 			return redirect('main:register')
 	else:
@@ -286,7 +292,7 @@ def passwordResetConfirmView(request, uidb64, token):
 		else:
 			return render(request, "accounts/password-reset-failed.html")	
 
-	except RuntimeError or Exception as err:
+	except Exception as err:
 		print(err)
 		messages.error(request, "User not found, click the link in the mail received")
 		return render(request, "accounts/password-reset-failed.html")
@@ -322,7 +328,7 @@ def passwordResetForm(request, token, id):
 		else:
 			messages.error(request, "User not found, click the link in the mail received")
 			return redirect('main:login')
-	except ValueError or Exception as err:
+	except Exception as err:
 		print(err)
 		return render(request, "accounts/password-reset-failed.html")
 
@@ -339,28 +345,6 @@ def	passwordChange(request, id):
 		return redirect(request, 'main:user_profile')
 
 
-
-
-
-
-# @login_required
-# def home(request):
-# 	staff=Staff.objects.get(user_obj=request.user)
-# 	notification_count=get_notifications(staff.id)
-# 	if request.user.is_staff:
-# 		a = User.objects.get(email=request.user)
-# 		print(a)
-# 		return render(request, "admin/dashboard.html", {"staff":staff,'notification_count':notification_count,})
-
-# 	staff = Staff.objects.get(user_obj=request.user)
-# 	userLabs = Lab.objects.filter(staff=staff).order_by('id').all()
-# 	return render(request, "home.html", {'userLabs': userLabs, "staff":staff, 'messages': messages.get_messages(request),'notification_count':notification_count,})
-
-	# except:
-	# 	tech = Technician.objects.get(tech_id=request.user.username)
-	# 	complaints = Complaint.objects.all()
-	# 	context = { "complaints": complaints}
-	# 	return render(request, "tech_dashboard.html", context)
 
 @login_required
 def user_profile_details(request):
@@ -496,7 +480,7 @@ def userLeaves(request):
 	staff = Staff.objects.get(user_obj=request.user)	
 	notification_count=get_notifications(staff.id)
 	year = datetime.datetime.now().year
-	leavesThisYear = TotalLeaves.objects.exclude(LeaveName='Compensatory').filter(year=year)
+	leavesThisYear = TotalLeaves.objects.exclude(LeaveName='Compensatory').filter(year=year).order_by("-year")
 	userLeavesTaken = []
 	for i in leavesThisYear:
 		userLeavesTaken.append(UserLeavesTaken.objects.get(staff=staff, leave_taken=i))
@@ -592,6 +576,7 @@ def requestleave(request):
 			toDate=form['toDate']
 
 			# print("debug toData -->>",toDate)		#debug
+			print(type(fromDate))
 
 			countOfLeaves = getNumberOfDays(fromDate, toDate)
 
@@ -711,7 +696,7 @@ def checkLeaveStatusId(request, pk):
 	leaveRequest = UserLeaveStatus.objects.get(id=pk)
 	getTotalLeaveDays = 1
 	if leaveRequest.to_date:
-		getTotalLeaveDays = getNumberOfDays(leaveRequest.from_date, leaveRequest.to_date)
+		getTotalLeaveDays = getNumberOfDays(str(leaveRequest.from_date), str(leaveRequest.to_date))
 
 	context = {
 		'staff':staff,
@@ -729,6 +714,22 @@ def cancelLeaveRequest(request, pk):
 	leave.delete()
 	return redirect('main:checkLeaveStatus')
 
+
+@login_required
+def adminapprovehisleaves(request):
+	staff=Staff.objects.get(user_obj=request.user)
+	notification_count=get_notifications(staff.id)
+	if request.user.is_staff:
+		leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-from_date")
+		context = {
+			'staff':staff,
+			"leaves": leaves,
+			'notification_count':notification_count,
+		}
+		return render(request, 'leaves/leaveapproval.html', context)
+	else:
+		return render(request,'pagenotfound.html',{})
+
 @login_required
 def approveLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
@@ -736,6 +737,7 @@ def approveLeaves(request):
 	#for admin
 	if staff.designation.designation == "System Analyst" or staff.designation.designation == "Lab Supervisor":
 		#return HttpResponse(201)
+		# leaves = UserLeaveStatus.objects.filter(substitute=staff).order_by("-from_date")
 		context={
 			'staff':staff,
 			'notification_count':notification_count,
@@ -757,7 +759,7 @@ def adminApprovedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False)
+		approvedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=True,rejected=False).order_by("-from_date")
 		context={
 			'staff':staff,
 			"approvedleaves":approvedleaves,
@@ -772,7 +774,7 @@ def adminRequestedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False)
+		requestedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=False).order_by("-from_date")
 		context={
 			'staff':staff,
 			"requestedleaves":requestedleaves,
@@ -787,7 +789,7 @@ def adminRejectedLeaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True)
+		rejectedleaves=UserLeaveStatus.objects.filter(substitute_approval=True,admin_approval=False,rejected=True).order_by("-from_date")
 		print(rejectedleaves)
 		context={
 			'staff':staff,
@@ -797,6 +799,50 @@ def adminRejectedLeaves(request):
 		return render(request,'admin/adminRejectedLeaves.html',context)
 	else:
 		return render(request,'pagenotfound.html',{})
+
+@login_required
+def adminapproverequest(request,pk):
+	leave = UserLeaveStatus.objects.get(id=pk)
+	leave.substitute_approval = True
+	leave.rejected = False
+	leave.status = "Waiting for admin to respond, approved by " + str(leave.substitute.name)
+	leave.save()
+
+	
+	notification_receiver = Staff.objects.get(id=leave.staff.id)
+	notification, was_created = Notification.objects.get_or_create(
+		sender=leave.substitute,
+		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
+		message="Your " + str(leave.leave_type.LeaveName) + " leave application was approved by " + str(leave.substitute.name),
+		notification_type="LEAVE_ACCEPTED",
+		taskId=str(leave.id)
+	)
+	notification.save()
+
+	return redirect("main:adminapprovehisleaves")
+
+@login_required
+def admindeclinerequest(request,pk):
+	sender=Staff.objects.get(user_obj=request.user)
+	leave = UserLeaveStatus.objects.get(id=pk)
+	notification_receiver = Staff.objects.get(id=leave.staff.id)
+	leave.status = "Declined by " + str(leave.substitute.name)
+	leave.rejected = True
+	leave.save()
+	notification, was_created = Notification.objects.get_or_create(
+		sender = sender,
+		reciever=str(notification_receiver.id) + " " + (notification_receiver.name),
+		message="Your " + str(leave.leave_type.LeaveName) + " leave application was declined by " + str(sender.name),
+		notification_type="LEAVE_REJECTED",
+		taskId = str(leave.id)
+	)
+	notification.save()
+	existingNotification = Notification.objects.filter(taskId = leave.id, notification_type="LEAVE").all()
+	for notification in existingNotification:
+		notification.isActive = False
+		notification.save()
+
+	return redirect("main:adminapprovehisleaves")
 
 @login_required
 def approveRequest(request, pk):
@@ -824,7 +870,7 @@ def approveRequest(request, pk):
 		if leave.type == 'FULL_DAY':
 			userleavetaken.count += 1
 		elif leave.type == 'MULTI':
-			userleavetaken.count += getNumberOfDays(leave.from_date, leave.to_date)
+			userleavetaken.count += getNumberOfDays(str(leave.from_date), str(leave.to_date))
 		else:
 			userleavetaken.count += 0.5
 		
@@ -873,7 +919,7 @@ def declineRequest(request, pk):
 			taskId=str(leave.id)
 		)
 		notification.save()
-		existingNotification = Notification.objects.filter(taskId = leave.id, notification_type="LEAVE")
+		existingNotification = Notification.objects.filter(taskId = leave.id, notification_type="LEAVE").order("-time")
 		existingNotification.isActive = False
 		existingNotification.save()
 		return redirect("main:approveLeaves")
@@ -902,7 +948,7 @@ def declineRequest(request, pk):
 def viewprevleaves(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True)
+	all_leaves=UserLeaveStatus.objects.filter(staff=staff,rejected=False,admin_approval=True,substitute_approval=True).order_by("-from_date")
 	context={
 		'staff':staff,
 		'all_leaves':all_leaves,
@@ -1129,7 +1175,7 @@ def lab(request, pk):
 	notification_count=get_notifications(staff.id)
 	lab = Lab.objects.get(id=pk)
 	all_devices_len=len(Devices.objects.filter(room=lab.lab,in_inventory=False))
-	devices=Devices.objects.filter(room=lab.lab,is_working=True,in_inventory=False).order_by("id").all()
+	devices=Devices.objects.filter(room=lab.lab,is_working=True,in_inventory=False).order_by("-name").all()
 	active_devices_len=(len(devices))
 	expired_devices_len=all_devices_len-active_devices_len
 	unique_device_types=[device.name for device in devices]
@@ -1227,7 +1273,7 @@ def escalation(request, pk):
 		complaint.escalated_at= timezone.now()
 		complaint.save()
 		device=Devices.objects.get(id=complaint.device.id)
-		complaints=Complaint.objects.filter(device=device,isActive=True)
+		complaints=Complaint.objects.filter(device=device,isActive=True).order_by("-created_at")
 		if(len(list(complaints))==0):
 			device.is_working=True
 		device.save()
@@ -1274,7 +1320,7 @@ def resolveConflict(request, pk):
 		complaint.who_resolved=resolver
 		complaint.save()
 		device=Devices.objects.get(id=complaint.device.id)
-		complaints=Complaint.objects.filter(device=device,isActive=True)
+		complaints=Complaint.objects.filter(device=device,isActive=True).order_by("-created_at")
 		# if(len(list(complaints))==0):
 		# 	device.is_working=True
 		# device.save()
@@ -1314,8 +1360,8 @@ def viewdevicecomplaints(request,id):
 	print("is_staff --->>>", staff.user_obj.is_staff)	#debug
 	notification_count=get_notifications(staff.id)
 	device=Devices.objects.get(id=id)
-	active_compaints=Complaint.objects.filter(device=device,isActive=True)
-	resolved_complaints=Complaint.objects.filter(device=device,isActive=False)
+	active_compaints=Complaint.objects.filter(device=device,isActive=True).order_by("-created_at")
+	resolved_complaints=Complaint.objects.filter(device=device,isActive=False).order_by("-created_at")
 	context={
 		'staff':staff,
 		'device':device,
@@ -1369,7 +1415,7 @@ def adminactivecomplaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		activecompliants=Complaint.objects.filter(isActive=True)
+		activecompliants=Complaint.objects.filter(isActive=True).order_by("-created_at")
 		myFilter = filterActiveComplaints(request.GET,queryset=activecompliants)
 		activecomplaints=myFilter.qs
 		
@@ -1382,7 +1428,7 @@ def adminresolvedcomplaints(request):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	if request.user.is_staff:
-		resolvedcompliants=Complaint.objects.filter(isActive=False)
+		resolvedcompliants=Complaint.objects.filter(isActive=False).order_by("-created_at")
 		return render(request, "admin/adminresolvedcomplaints.html", {"complaints":resolvedcompliants,"staff":staff,'notification_count':notification_count,})
 	else:
 		return render(request, "pagenotfound.html")
@@ -1475,11 +1521,11 @@ def leaveUsersHistory(request):
 		if type == '':
 			all = "All"
 			leaveType = TotalLeaves.objects.all()
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-from_date")
 		else:
 			leaveType = TotalLeaves.objects.get(id=type)
 			all = leaveType.LeaveName
-			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year, leave_type=leaveType).order_by("-id")
+			allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year, leave_type=leaveType).order_by("-from_date")
 
 		print(allLeavesStatus)
 		leaves = []
@@ -1502,11 +1548,11 @@ def leaveUsersHistory(request):
 				month=month,
 				leave_type=currType,
 				admin_approval=True	
-			)
+			).order_by("-from_date")
 			countDays = 0
 			for a in leavesThisMonth:
 				if a.type == 'FULL_DAY' or a.type == 'MULTI':
-					countDays += getNumberOfDays(a.from_date, a.to_date)
+					countDays += getNumberOfDays(str(a.from_date), str(a.to_date))
 				else:
 					countDays += 0.5
 			days=[]
@@ -1581,7 +1627,7 @@ def leaveUsersHistory(request):
 		month=datetime.datetime.now().month
 
 		allLeavesTaken = UserLeavesTaken.objects.all();  # count
-		allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-id")
+		allLeavesStatus = UserLeaveStatus.objects.filter(month=month, year=year).order_by("-from_date")
 
 		leaves = []
 		for leave in allLeavesStatus:
@@ -1965,8 +2011,8 @@ def ViewFacultyDetails(request):
 		c1=Category.objects.get(category='Faculty')
 		c2=Category.objects.get(category='Student')
 		staff=[]
-		staff1=Staff.objects.filter(category=c1)
-		staff2=Staff.objects.filter(category=c2)
+		staff1=Staff.objects.filter(category=c1).order_by("-id")
+		staff2=Staff.objects.filter(category=c2).order_by("-id")
 		staff.extend(staff1)
 		staff.extend(staff2)
 		# groups=FacultyGroups.objects.filter(faculty=staff)
@@ -2366,7 +2412,7 @@ def adminupdatefacultyclass(request,id,pk):
 def viewinventory(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	inventory=StaffInventory.objects.filter(staff=staff).order_by('id')
+	inventory=StaffInventory.objects.filter(staff=staff).order_by('-date_added')
 	room=staff.room
 	if room:
 		all_devices=[i.device for i in inventory]
@@ -2400,7 +2446,7 @@ def view_inventory_devices(request,device_type):
 	staff = Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
 	device_type=CategoryOfDevice.objects.get(category=device_type)
-	inventory_devices=StaffInventory.objects.filter(staff=staff)
+	inventory_devices=StaffInventory.objects.filter(staff=staff).order_by("-date_added")
 	devices=[i for i in inventory_devices if i.device.name==device_type]
 	devices=[device for device in devices if device.device.is_working==True]
 	# print(devices)
@@ -2434,7 +2480,7 @@ def view_expired_inventory_devices(request):
 	# print('hi')
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	devices=StaffInventory.objects.filter(staff=staff)
+	devices=StaffInventory.objects.filter(staff=staff).order_by("-date_added")
 	devices=[device for device in devices if device.device.is_working==False]
 	all_devices= Devices.objects.filter(id__in={instance.device.id for instance in devices})
 	print(all_devices)
@@ -2457,8 +2503,8 @@ def adminviewinventory(request,id):
 		staff=Staff.objects.get(user_obj=request.user)
 		notification_count=get_notifications(staff.id)
 		fac=Staff.objects.get(id=id)
-		inventory_devices=StaffInventory.objects.filter(staff=fac)
-		inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True)
+		inventory_devices=StaffInventory.objects.filter(staff=fac).order_by('-date_added')
+		inventory_devices_to_return=StaffInventory.objects.filter(staff=fac,is_requested_for_return=True).order_by("-date_added")
 		return render(request,"admin/adminviewinventory.html",{"staff":staff,"inventorystaff":fac,"devices":inventory_devices,"devicestoreturn":inventory_devices_to_return,'notification_count':notification_count,})
 	else:
 		return render(request,'pagenotfound.html',{})
@@ -2521,7 +2567,7 @@ def devicesreturnrequest(request,id):
 
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	inventory=StaffInventory.objects.filter(staff=staff,is_requested_for_return=False)
+	inventory=StaffInventory.objects.filter(staff=staff,is_requested_for_return=False).order_by("-date_added")
 	if request.method=='POST':
 		devices=request.POST.getlist('devices')
 		for device in devices:
@@ -2620,6 +2666,7 @@ def adminviewrooms(request):
 		myFilter = filterRoom(request.GET,queryset=rooms)
 		# try:
 		rooms=myFilter.qs
+		rooms=rooms.order_by("floor")
 		# except:
 		# 	rooms = []
 			# message_to_display= 'No rooms added on this floor'
@@ -2864,7 +2911,7 @@ def adminassignoffice(request):
 		staffs=Staff.objects.filter(room=None)
 		rooms=Room.objects.all()
 		myFilter = filterRoom(request.GET,queryset=rooms)
-		rooms=myFilter.qs
+		rooms=myFilter.qs.order_by("floor")
 		if request.method == 'POST':
 			selected_staff=request.POST['selected_staff']
 			selected_staff=Staff.objects.get(id=selected_staff)
@@ -3123,9 +3170,9 @@ def adminview_warehouse_devices(request):
 	if request.user.is_staff:
 		staff=Staff.objects.get(user_obj=request.user)
 		notification_count=get_notifications(staff.id)
-		devices=Devices.objects.filter(room=None)
+		devices=Devices.objects.filter(room=None).order_by("name")
 		myFilter = filterWarehouseDevices(request.GET,queryset=devices)
-		devices=myFilter.qs
+		devices=myFilter.qs.order_by("name")
 		context={
 			'staff':staff,
 			'devices':devices,
@@ -3141,11 +3188,11 @@ def adminview_assigned_devices(request):
 		staff=Staff.objects.get(user_obj=request.user)
 		notification_count=get_notifications(staff.id)
 		all_devices=Devices.objects.all()
-		devices=Devices.objects.filter(room=None)
+		devices=Devices.objects.filter(room=None).order_by("name")
 		assigned_devices=[dev for dev in all_devices if dev not in devices]
-		assigned_devices=Devices.objects.filter(id__in={instance.id for instance in assigned_devices})
+		assigned_devices=Devices.objects.filter(id__in={instance.id for instance in assigned_devices}).order_by("name")
 		myFilter = filterAssignedDevices(request.GET,queryset=assigned_devices)
-		assigned_devices=myFilter.qs
+		assigned_devices=myFilter.qs.order_by("name")
 		context={
 			'staff':staff,
 			'devices':assigned_devices,
@@ -3277,7 +3324,7 @@ def admin_delete_device(request,id):
 def viewinventorylogs(request):
 	staff=Staff.objects.get(user_obj=request.user)
 	notification_count=get_notifications(staff.id)
-	inventorylogs=Inventory_log.objects.filter(staff=staff)
+	inventorylogs=Inventory_log.objects.filter(staff=staff).order_by("-date")
 	context={
 		'staff':staff,
 		'notification_count':notification_count,
@@ -3349,9 +3396,9 @@ def view_expired_lab_devices(request,pk):
 	notification_count=get_notifications(staff.id)
 	lab=Lab.objects.get(id=pk)
 	room=Room.objects.get(id=lab.lab.id)
-	devices=Devices.objects.filter(room=room,is_working=False)
+	devices=Devices.objects.filter(room=room,is_working=False).order_by("name")
 	myFilter = filterExpiredDevices(request.GET,queryset=devices)
-	devices=myFilter.qs
+	devices=myFilter.qs.order_by("name")
 	context={
 		'staff':staff,
 		'devices':devices,

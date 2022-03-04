@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django_email_verification',
     'helpers',
     'django_filters',
+    "bootstrap4",
 ]
 
 MIDDLEWARE = [
@@ -140,8 +141,9 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = '/accounts/login'
-LOGIN_REDIRECT_URL = '/accounts/login'
+print("jayantttt")
+LOGIN_URL = 'accounts/login/'
+LOGIN_REDIRECT_URL = 'accounts/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

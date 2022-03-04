@@ -21,7 +21,6 @@
         <th scope="col">Complaint</th>
         <th scope="col">Complaint Sender</th>
         <th scope="col">Complaint Created At</th>
-        <th scope="col">Complaint Reason</th>
         <th scope="col">Assigned To</th>
         <th scope="col">Escalated By</th>
         <th scope="col">Escalated At</th>
@@ -42,9 +41,8 @@
             <td>{{ active_complaint.device.device_id }} </td>
             <td>{{ active_complaint.complaint }}</td>
             <td>{{ active_complaint.created_by.name }}</td>
-            <td>{{ active_complaint.assigned_to.name }}</td>
             <td>{{ active_complaint.created_at }}</td>
-            <td>{{ active_complaint.complaint }} </td>
+            <td>{{ active_complaint.assigned_to }}</td>
             <td>{{ active_complaint.escalated_by }} </td>
             <td>{{ active_complaint.escalated_at }} </td>
             <td>
@@ -56,15 +54,12 @@
             <td>
               {% if not active_complaint.escalated %}
               <a href="{% url 'main:escalate' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Escalate</a>
+              {% else %}
+              Already Escalated
               {% endif %}
             </td>
-            {% comment %}
-
-            {% if complaint.isActive %}
-            <td>Active</td>
-            {% else %}
-            <td><a href="{% url 'main:escalate' pk=active_complaint.id %}" style="color: rgb(48, 1, 1); text-decoration: underline;">Escalate</a></td>
-            {% endif %}
+          
+            
         </tr>
         {% endfor %}
         </tbody>
@@ -101,9 +96,10 @@
             <td>{{ resolved_complaint.device.room.name }}</td>
             <td>{{ resolved_complaint.device.device_id }} </td>
             <td>{{ resolved_complaint.complaint }}</td>
+            <td>{{ resolved_complaint.created_by.name }}</td>
             <td>{{ resolved_complaint.assigned_to.name }}</td>
             <td>{{ resolved_complaint.created_at }}</td>
-            <td>{{ resolved_complaint.complaint }} </td>
+            
             <td>
               {% if resolved_complaint.escalated %}
               {{ resolved_complaint.escalated_by }} 

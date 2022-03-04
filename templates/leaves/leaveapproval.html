@@ -30,8 +30,13 @@
             <td style="color: #000;">{{ leave.status }}</td>
             {% if not leave.substitute_approval and not leave.rejected%}
             <td style="color: #000;">
+                {% if request.user.is_staff %}
+                <a style="color: #000; text-decoration: underline;" href="{% url 'main:adminapproverequest' pk=leave.id%}">Approve/</a>
+                <a style="color: #000; text-decoration: underline;" href="{% url 'main:admindeclinerequest' pk=leave.id%}">Decline</a>
+                {% else %}
                 <a style="color: #000; text-decoration: underline;" href="{% url 'main:approveRequest' pk=leave.id%}">Approve/</a>
                 <a style="color: #000; text-decoration: underline;" href="{% url 'main:declineRequest' pk=leave.id%}">Decline</a>
+                {% endif %}
             </td>
             {% elif leave.substitute_approval %}
                 <td style="color: rgb(0, 129, 17);">Already Approved</tr>
@@ -39,8 +44,6 @@
                 <td style="color: #f00;">Declined</tr>
             {% endif %}
         </tr>
-        {% else %}
-            <h2>No active requests for leave </h2>
         {% endif %}
         
     {% endfor %}

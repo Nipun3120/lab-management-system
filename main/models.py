@@ -64,7 +64,7 @@ class CategoryOfDevice(models.Model):
         return self.category
 
 class Room(models.Model):
-    room_id = models.CharField(max_length=20, blank=False)
+    room_id = models.CharField(max_length=20, blank=False, unique=True)
     name = models.CharField(max_length=255, blank=True)
     floor = models.IntegerField(blank=False, null=False, default=0)
     is_lab=models.BooleanField(default=False)

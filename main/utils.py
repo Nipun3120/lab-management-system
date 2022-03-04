@@ -8,6 +8,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from geopy.distance import geodesic
+from numpy import dtype
 
 from lms.settings import EMAIL_HOST_USER
 from .tokens import generate_token
@@ -40,7 +41,14 @@ def getNumberOfDays(fromDate, toDate):
     if not toDate:
         return 1
 
-    return (datetime.strptime(toDate, '%Y-%m-%d') - datetime.strptime(fromDate, '%Y-%m-%d')).days + 1
+    # dateTo = datetime(toDate, '%Y-%m-%d')
+    try:
+        return (datetime.strptime(toDate, '%Y-%m-%d') - datetime.strptime(fromDate, '%Y-%m-%d')).days + 1
+    # print(type(fromDate))
+    # print(toDate-fromDate)
+    except:
+        return (toDate - fromDate).days + 1
+    
 
 def checkLeaveAvailability(leaveType, user, count):
     currLeave = UserLeavesTaken.objects.get(staff=user, leave_taken=leaveType)

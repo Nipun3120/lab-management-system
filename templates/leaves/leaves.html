@@ -11,11 +11,23 @@
 <div class = "wrapper">
     <div class = "leaves container">
         <h1 style = "text-align: center;">Leaves Status</h1>
-
         <div class="card w-70 flex" style = "color: black;text-decoration: none;background-color: rgba(245, 245, 245, 0.4);margin-bottom: 40px;padding:20px">
+        {% if user.is_staff %}
             <div  class="nav-link nav_text" style = "text-decoration: none;">
                 <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
-                <a href="{% url 'main:approveLeaves' %}" style = "text-align:center;color: black;text-decoration: none;">     Leave Approval</a>
+                <a href="{% url 'main:adminapprovehisleaves' %}" style = "text-align:center;color: black;text-decoration: none;"> Substitute Approval</a>
+            </div>
+        {% endif %}
+        
+            <div  class="nav-link nav_text" style = "text-decoration: none;">
+                <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
+                <a href="{% url 'main:approveLeaves' %}" style = "text-align:center;color: black;text-decoration: none;">
+                         {% if user.is_staff %}
+                            Admin Leave Approval
+                         {% else %}
+                            Leave Approval
+                         {% endif %}
+                </a>
             </div>
             <div  class="nav-link nav_text">
                 <i class="fa-solid fa-circle-arrow-right" style = "color: black;"></i>
